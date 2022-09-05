@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        MinWidth="960" MinHeight="640"
+        x:Class="PhotoLayout.MainWindow"
+        Title="Photo Layout">
+  <Grid Margin="6" ColumnDefinitions="* *" RowDefinitions="* Auto Auto *">
+    <TextBox x:Name="Sizes" Margin="6" TextWrapping="Wrap"/>
+    <Grid Grid.Row="1" ColumnDefinitions="Auto * 12 Auto *">
+      <TextBlock Margin="6" Grid.Column="0" VerticalAlignment="Center" Text="Width"/>
+      <TextBox x:Name="ContainerWidth" Grid.Column="1" Margin="6" Text="312"/>
+      <TextBlock Margin="6" Grid.Column="3" VerticalAlignment="Center" Text="Height"/>
+      <TextBox x:Name="ContainerHeight" Grid.Column="4" Margin="6" Text="540"/>
+    </Grid>
+    <Button x:Name="GenButton" Margin="6" Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Generate!"/>
+    <TextBlock x:Name="Result" Margin="6" Grid.Row="3"/>
+
+    <StackPanel x:Name="ContainerPlaceholder" Grid.Column="1" Grid.RowSpan="4" Margin="6" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2f7f7f7f"/>
+    <StackPanel x:Name="Container" Grid.Column="1" Grid.RowSpan="4" Margin="6" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+  </Grid>
+</Window>
