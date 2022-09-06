@@ -7,17 +7,17 @@
         x:Class="PhotoLayout.MainWindow"
         Title="Photo Layout">
   <Grid Margin="6" ColumnDefinitions="* *" RowDefinitions="* Auto Auto *">
-    <TextBox x:Name="Sizes" Margin="6" TextWrapping="Wrap"/>
+    <TextBox x:Name="Sizes" Margin="6" TextWrapping="Wrap" AcceptsReturn="True"/>
     <Grid Grid.Row="1" ColumnDefinitions="Auto * 12 Auto *">
       <TextBlock Margin="6" Grid.Column="0" VerticalAlignment="Center" Text="Width"/>
       <TextBox x:Name="ContainerWidth" Grid.Column="1" Margin="6" Text="312"/>
       <TextBlock Margin="6" Grid.Column="3" VerticalAlignment="Center" Text="Height"/>
-      <TextBox x:Name="ContainerHeight" Grid.Column="4" Margin="6" Text="540"/>
+      <TextBox x:Name="ContainerHeight" Grid.Column="4" Margin="6" Text="468"/>
     </Grid>
     <Button x:Name="GenButton" Margin="6" Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Generate!"/>
     <TextBlock x:Name="Result" Margin="6" Grid.Row="3"/>
 
     <StackPanel x:Name="ContainerPlaceholder" Grid.Column="1" Grid.RowSpan="4" Margin="6" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2f7f7f7f"/>
-    <StackPanel x:Name="Container" Grid.Column="1" Grid.RowSpan="4" Margin="6" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+    <StackPanel x:Name="ContainerParent" Grid.Column="1" Grid.RowSpan="4" Margin="6" HorizontalAlignment="Left" VerticalAlignment="Top"/>
   </Grid>
 </Window>

@@ -1,6 +1,11 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace PhotoLayout {
     public class PhotoLayout {
@@ -17,7 +22,7 @@ namespace PhotoLayout {
             if (columnItem) thumb.ColumnItem = columnItem;
         }
 
-        public static List<Thumb> Calculate(List<Thumb> thumbs, int margin, int maxWidth, int maxHeight) {
+        private static List<Thumb> Calculate(List<Thumb> thumbs, int margin, int maxWidth, int maxHeight) {
             List<double> photoRatios = new List<double>();
             string photoRatioTypes = String.Empty;
 
@@ -252,6 +257,76 @@ namespace PhotoLayout {
             }
 
             return thumbs;
+        }
+
+        private static StackPanel GenerateLayoutInternal(List<Thumb> thumbs, int margin, Func<Thumb, Control> generateControlAction, Action<string>? debug = null) {
+            StackPanel container = new StackPanel();
+
+            bool generatedColumn = false;
+            bool isEndFirstRow = false;
+            double height = 0;
+
+            container.Children.Add(new StackPanel { Orientation = Orientation.Horizontal });
+
+            for (int i = 0; i < thumbs.Count; i++) {
+                Thumb thumb = thumbs[i];
+                debug?.Invoke($"{thumb.Width}x{thumb.Height}; colitem: {thumb.ColumnItem}; lastc: {thumb.LastColumn}; lastr: {thumb.LastRow}; end: {thumb.EndFirstRow}\n");
+
+                StackPanel panel = (StackPanel)container.Children.Last();
+                Thumb nextThumb = i < thumbs.Count - 1 ? thumbs[i + 1] : null;
+
+                if (generatedColumn && thumb.ColumnItem) {
+                    continue;
+                }
+
+                if (thumb.LastColumn && !isEndFirstRow) {
+                    thumb.EndFirstRow = true;
+                    isEndFirstRow = true;
+                }
+
+                if (thumb.ColumnItem) {
+                    generatedColumn = true;
+
+                    StackPanel span = new StackPanel();
+                    foreach (Thumb t in thumbs.Where(t => t.ColumnItem)) {
+                        var control = generateControlAction.Invoke(t);
+                        control.Margin = new Thickness(0, 0, thumb.LastColumn ? 0 : margin, thumb.LastRow ? 0 : margin);
+                        span.Children.Add(control);
+                    }
+                    panel.Children.Add(span);
+                } else {
+                    if (thumb.LastColumn || (nextThumb != null && nextThumb.ColumnItem)) {
+                        height += thumb.Height + (thumb.LastRow ? 0 : margin);
+                    }
+                    var control = generateControlAction.Invoke(thumb);
+                    control.Margin = new Thickness(0, 0, thumb.LastColumn ? 0 : margin, thumb.LastRow ? 0 : margin);
+                    panel.Children.Add(control);
+                }
+
+                if (thumb.LastColumn && !thumb.LastRow) {
+                    container.Children.Add(new StackPanel { Orientation = Orientation.Horizontal });
+                }
+            }
+
+            return container;
+        }
+
+        public static StackPanel GenerateLayout(List<Size> sizes, int margin, int maxWidth, int maxHeight, Func<Thumb, Control> generateControlAction, Action<string>? debug = null) {
+            Stopwatch sw = Stopwatch.StartNew();
+            List<Thumb> thumbs = new List<Thumb>();
+            foreach (var size in CollectionsMarshal.AsSpan(sizes)) {
+                thumbs.Add(new Thumb { 
+                    Width = (int)Math.Round(size.Width),
+                    Height = (int)Math.Round(size.Height)
+                });
+            }
+
+            var calculated = Calculate(thumbs, margin, maxWidth, maxHeight);
+            var container = GenerateLayoutInternal(calculated, margin, generateControlAction, debug);
+            sw.Stop();
+
+            debug?.Invoke($"Time: {sw.ElapsedMilliseconds} ms.");
+            return container;
         }
     }
 }
