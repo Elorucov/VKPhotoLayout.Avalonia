@@ -55,6 +55,7 @@ namespace PhotoLayout {
                 Height = thumb.Height,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
+                UseLayoutRounding = false,
                 Background = new SolidColorBrush(Color.FromArgb(255, 128, 128, 128)),
             };
         }

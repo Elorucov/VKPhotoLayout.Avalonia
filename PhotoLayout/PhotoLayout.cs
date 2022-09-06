@@ -14,15 +14,15 @@ namespace PhotoLayout {
         }
 
         private static void UpdateThumb(Thumb thumb, double width, double height, bool lastColumn, bool lastRow, bool columnItem = false) {
-            thumb.Width = (int)Math.Round(width);
-            thumb.Height = (int)Math.Round(columnItem ? height : Math.Max(height, 50));
+            thumb.Width = width;
+            thumb.Height = columnItem ? height : Math.Max(height, 50);
 
             if (lastColumn) thumb.LastColumn = lastColumn;
             if (lastRow) thumb.LastRow = lastRow;
             if (columnItem) thumb.ColumnItem = columnItem;
         }
 
-        private static List<Thumb> Calculate(List<Thumb> thumbs, int margin, int maxWidth, int maxHeight) {
+        private static List<Thumb> Calculate(List<Thumb> thumbs, int margin, double maxWidth, double maxHeight) {
             List<double> photoRatios = new List<double>();
             string photoRatioTypes = String.Empty;
 
@@ -32,7 +32,7 @@ namespace PhotoLayout {
                     thumb.Height = 100;
                 }
 
-                double ratio = Math.Max((double)thumb.Width / (double)thumb.Height, .3);
+                double ratio = Math.Max(thumb.Width / thumb.Height, .3);
 
                 photoRatioTypes += ratio > 1.2 ? 'w' : (ratio < .8 ? 'n' : 'q');
                 photoRatios.Add(ratio);
@@ -55,7 +55,7 @@ namespace PhotoLayout {
                 } else {
                     // Одинаковая высота, но разная ширина
                     // [photo][photo]
-                    double minWidth = Math.Min(Math.Max((double)(thumbs[0].Width + thumbs[1].Width) / 2, 200), maxWidth);
+                    double minWidth = Math.Min(Math.Max((thumbs[0].Width + thumbs[1].Width) / 2, 200), maxWidth);
                     double widthModifier = (minWidth - margin) / (photoRatios[0] + photoRatios[1]);
                     double width1 = widthModifier * photoRatios[0];
                     double width2 = widthModifier * photoRatios[1];
@@ -70,7 +70,7 @@ namespace PhotoLayout {
                         width2 = 100;
                     }
 
-                    double height = Math.Min(maxHeight, ((double)width1 / photoRatios[0] + (double)width2 / photoRatios[1]) / 2);
+                    double height = Math.Min(maxHeight, (width1 / photoRatios[0] + width2 / photoRatios[1]) / 2);
 
                     UpdateThumb(thumbs[0], width1, height, false, true);
                     UpdateThumb(thumbs[1], width2, height, true, true);
@@ -79,9 +79,9 @@ namespace PhotoLayout {
                 if (photoRatioTypes == "www") {
                     // [photo1]
                     // [p2][p3]
-                    double width1 = Math.Min(maxWidth, Math.Max(thumbs[0].Width, (double)(thumbs[1].Width + thumbs[2].Width) / 2 + margin));
+                    double width1 = Math.Min(maxWidth, Math.Max(thumbs[0].Width, (thumbs[1].Width + thumbs[2].Width) / 2 + margin));
                     double width2 = (width1 - margin) / 2;
-                    double height1 = Math.Min(width1 / photoRatios[0], (maxHeight - margin) * (2 / 3));
+                    double height1 = Math.Min(width1 / photoRatios[0], (maxHeight - margin) * ((double)2 / (double)3));
                     double height2 = Math.Min(maxHeight - height1 - margin, (width2 / photoRatios[1] + width2 / photoRatios[2]) / 2);
 
                     UpdateThumb(thumbs[0], width1, height1, true, false);
@@ -121,7 +121,7 @@ namespace PhotoLayout {
                     // [p2][p3][p4]
                     // const [t0, t1, t2, t3] = thumbs;
                     double minWidth = Math.Min(
-                      Math.Max((double)(thumbs[1].Width + thumbs[2].Width + thumbs[3].Width) / 3, 250),
+                      Math.Max((thumbs[1].Width + thumbs[2].Width + thumbs[3].Width) / 3, 250),
                       maxWidth
                     );
                     double widthModifier = (
@@ -154,7 +154,7 @@ namespace PhotoLayout {
                     double height2 = heightModifier / photoRatios[1];
                     double height3 = heightModifier / photoRatios[2];
                     double height4 = heightModifier / photoRatios[3];
-                    double width1 = Math.Min(height1 * photoRatios[0], (double)(maxWidth - margin) * ((double)2 / (double)3));
+                    double width1 = Math.Min(height1 * photoRatios[0], (maxWidth - margin) * ((double)2 / (double)3));
                     double width2 = Math.Min(maxWidth - width1 - margin, Math.Max(heightModifier, 65));
 
                     UpdateThumb(thumbs[0], width1, height1, false, true);
@@ -260,7 +260,7 @@ namespace PhotoLayout {
         }
 
         private static StackPanel GenerateLayoutInternal(List<Thumb> thumbs, int margin, Func<Thumb, Control> generateControlAction, Action<string>? debug = null) {
-            StackPanel container = new StackPanel();
+            StackPanel container = new StackPanel { UseLayoutRounding = false };
 
             bool generatedColumn = false;
             bool isEndFirstRow = false;
@@ -270,12 +270,12 @@ namespace PhotoLayout {
 
             for (int i = 0; i < thumbs.Count; i++) {
                 Thumb thumb = thumbs[i];
-                debug?.Invoke($"{thumb.Width}x{thumb.Height}; colitem: {thumb.ColumnItem}; lastc: {thumb.LastColumn}; lastr: {thumb.LastRow}; end: {thumb.EndFirstRow}\n");
 
                 StackPanel panel = (StackPanel)container.Children.Last();
                 Thumb nextThumb = i < thumbs.Count - 1 ? thumbs[i + 1] : null;
 
                 if (generatedColumn && thumb.ColumnItem) {
+                    debug?.Invoke($"{Math.Round(thumb.Width, 1)}x{Math.Round(thumb.Height, 1)}; colitem: {thumb.ColumnItem}; lastc: {thumb.LastColumn}; lastr: {thumb.LastRow}; end: {thumb.EndFirstRow}\n");
                     continue;
                 }
 
@@ -283,6 +283,8 @@ namespace PhotoLayout {
                     thumb.EndFirstRow = true;
                     isEndFirstRow = true;
                 }
+
+                debug?.Invoke($"{Math.Round(thumb.Width, 1)}x{Math.Round(thumb.Height, 1)}; colitem: {thumb.ColumnItem}; lastc: {thumb.LastColumn}; lastr: {thumb.LastRow}; end: {thumb.EndFirstRow}\n");
 
                 if (thumb.ColumnItem) {
                     generatedColumn = true;
@@ -316,8 +318,8 @@ namespace PhotoLayout {
             List<Thumb> thumbs = new List<Thumb>();
             foreach (var size in CollectionsMarshal.AsSpan(sizes)) {
                 thumbs.Add(new Thumb { 
-                    Width = (int)Math.Round(size.Width),
-                    Height = (int)Math.Round(size.Height)
+                    Width = size.Width,
+                    Height = size.Height
                 });
             }
 
