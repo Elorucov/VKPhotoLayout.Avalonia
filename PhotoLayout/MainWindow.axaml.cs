@@ -7,6 +7,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace PhotoLayout {
@@ -50,13 +51,13 @@ namespace PhotoLayout {
         }
 
         private Control GenerateBorder(Thumb thumb) {
-            return new Border {
+            return new Rectangle {
                 Width = thumb.Width,
                 Height = thumb.Height,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
-                UseLayoutRounding = false,
-                Background = new SolidColorBrush(Color.FromArgb(255, 128, 128, 128)),
+                UseLayoutRounding = true,
+                Fill = new SolidColorBrush(Color.FromArgb(255, 128, 128, 128)),
             };
         }
     }

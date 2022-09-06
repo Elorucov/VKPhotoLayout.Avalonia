@@ -260,7 +260,7 @@ namespace PhotoLayout {
         }
 
         private static StackPanel GenerateLayoutInternal(List<Thumb> thumbs, int margin, Func<Thumb, Control> generateControlAction, Action<string>? debug = null) {
-            StackPanel container = new StackPanel { UseLayoutRounding = false };
+            StackPanel container = new StackPanel { UseLayoutRounding = true };
 
             bool generatedColumn = false;
             bool isEndFirstRow = false;
@@ -309,7 +309,6 @@ namespace PhotoLayout {
                     container.Children.Add(new StackPanel { Orientation = Orientation.Horizontal });
                 }
             }
-
             return container;
         }
 
@@ -325,9 +324,11 @@ namespace PhotoLayout {
 
             var calculated = Calculate(thumbs, margin, maxWidth, maxHeight);
             var container = GenerateLayoutInternal(calculated, margin, generateControlAction, debug);
+            container.MaxWidth = maxWidth;
+            container.Measure(new Size(maxWidth, Double.PositiveInfinity));
             sw.Stop();
 
-            debug?.Invoke($"Time: {sw.ElapsedMilliseconds} ms.");
+            debug?.Invoke($"Calculated size: {container.DesiredSize.Width}x{container.DesiredSize.Height}\nTime: {sw.ElapsedMilliseconds} ms.");
             return container;
         }
     }
